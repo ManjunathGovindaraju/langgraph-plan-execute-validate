@@ -102,16 +102,18 @@ def _make_router(cfg: PEVConfig):
             # ── Human-in-the-loop: replan approval ──────────────────────────
             human_feedback: str | None = None
             if cfg.interrupt_before_replan:
-                human_input: Any = interrupt({
-                    "type": "replan_approval",
-                    "failed_step": plan[idx] if idx < len(plan) else "",
-                    "score": score,
-                    "validator_feedback": state.get("validation_feedback", ""),
-                    "message": (
-                        f"Step '{plan[idx]}' failed (score: {score:.0%}). "
-                        "Resume to approve replanning, or provide guidance as a string."
-                    ),
-                })
+                human_input: Any = interrupt(
+                    {
+                        "type": "replan_approval",
+                        "failed_step": plan[idx] if idx < len(plan) else "",
+                        "score": score,
+                        "validator_feedback": state.get("validation_feedback", ""),
+                        "message": (
+                            f"Step '{plan[idx]}' failed (score: {score:.0%}). "
+                            "Resume to approve replanning, or provide guidance as a string."
+                        ),
+                    }
+                )
                 if isinstance(human_input, str) and human_input.strip():
                     human_feedback = human_input.strip()
 

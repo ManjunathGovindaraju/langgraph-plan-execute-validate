@@ -44,16 +44,18 @@ def make_executor_node(cfg: PEVConfig):
         if cfg.interrupt_before_step:
             idx = state["current_step_idx"]
             total = len(state["plan"])
-            human_input = interrupt({
-                "type": "step_approval",
-                "step": current_step,
-                "step_number": idx + 1,
-                "total_steps": total,
-                "message": (
-                    f"Step {idx + 1}/{total}: '{current_step}'\n"
-                    "Resume with None to approve, or a string to override the step."
-                ),
-            })
+            human_input = interrupt(
+                {
+                    "type": "step_approval",
+                    "step": current_step,
+                    "step_number": idx + 1,
+                    "total_steps": total,
+                    "message": (
+                        f"Step {idx + 1}/{total}: '{current_step}'\n"
+                        "Resume with None to approve, or a string to override the step."
+                    ),
+                }
+            )
             # Non-empty string → human overrode the step text
             if isinstance(human_input, str) and human_input.strip():
                 current_step = human_input.strip()
