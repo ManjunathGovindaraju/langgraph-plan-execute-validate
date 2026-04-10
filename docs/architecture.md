@@ -156,15 +156,15 @@ sequenceDiagram
 flowchart TD
     A["Router receives\nvalidation_score, retry_count,\nreplan_count, current_step_idx"]
 
-    B{"score ≥\npass_threshold?"}
-    C{"Last step\nin plan?"}
+    B{"score >= pass_threshold?"}
+    C{"Last step in plan?"}
     D["✅ complete\nroute → END"]
     E["➡️ execute\nadvance idx\nreset retry_count"]
 
-    F{"retry_count <\nmax_retries?"}
+    F{"retry_count < max_retries?"}
     G["🔁 retry\nincrement retry_count\nroute → executor"]
 
-    H{"replan_count <\nmax_replans?"}
+    H{"replan_count < max_replans?"}
     I["🔄 replan\nroute → planner"]
     J["❌ failed\nset error message\nroute → END"]
 

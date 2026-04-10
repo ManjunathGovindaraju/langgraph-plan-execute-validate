@@ -120,26 +120,26 @@ stateDiagram-v2
 
 ```mermaid
 flowchart TD
-    A["Router\nreads score, retry_count,\nreplan_count, step_idx"]
-    B{"score ≥\npass_threshold?"}
-    C{"Last step?"}
-    D["✅ complete → END"]
-    E["➡️ advance idx\nreset retry → executor"]
-    F{"retry_count <\nmax_retries?"}
-    G["🔁 increment retry\n→ executor"]
-    H{"replan_count <\nmax_replans?"}
-    I["🔄 → planner\nwith failure context"]
-    J["❌ failed → END"]
+    A["Router reads score, retry_count,\nreplan_count, current_step_idx"]
+    B{"score >= pass_threshold?"}
+    C{"Last step in plan?"}
+    D["✅ complete\nroute → END"]
+    E["➡️ advance idx\nreset retry_count\nroute → executor"]
+    F{"retry_count < max_retries?"}
+    G["🔁 retry\nincrement retry_count\nroute → executor"]
+    H{"replan_count < max_replans?"}
+    I["🔄 replan\nroute → planner"]
+    J["❌ failed\nset error message\nroute → END"]
 
     A --> B
     B -->|"yes"| C
     C -->|"yes"| D
-    C -->|"no"|  E
-    B -->|"no"|  F
+    C -->|"no"| E
+    B -->|"no"| F
     F -->|"yes"| G
-    F -->|"no"|  H
+    F -->|"no"| H
     H -->|"yes"| I
-    H -->|"no"|  J
+    H -->|"no"| J
 ```
 
 ### Request Lifecycle
