@@ -58,11 +58,20 @@ class PEVState(TypedDict):
     current_step_idx: int
     """Index into `plan` pointing at the step currently being executed."""
 
+    # ── Execution handoff ────────────────────────────────────────────────────
+    pending_result: str
+    """
+    Raw output from the most recent executor run, waiting to be scored.
+    The executor writes here; the validator reads and clears it by
+    appending a complete StepResult to step_results.
+    """
+
     # ── Execution history ────────────────────────────────────────────────────
     step_results: Annotated[list[StepResult], operator.add]
     """
-    Accumulates one StepResult per *attempt* (not per step).
-    operator.add means each executor run appends; nothing is overwritten.
+    Accumulates one *complete* StepResult per attempt (score + feedback
+    included).  Only the validator appends here — after scoring.
+    operator.add means nothing is ever overwritten; full audit trail.
     """
 
     # ── Validation ───────────────────────────────────────────────────────────
