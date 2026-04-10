@@ -1,5 +1,4 @@
-"""
-Example: PEV + FastMCP — The "Full-Stack AI" Architecture.
+"""Example: PEV + FastMCP — The "Full-Stack AI" Architecture.
 
 This script demonstrates how to connect a PEV orchestrator (this repo) to
 an MCP server built with your 'fastmcp-production-template'.
@@ -21,14 +20,13 @@ Run
 
 from __future__ import annotations
 
-import os
-
 from dotenv import load_dotenv
 
 load_dotenv()
 
 
 def main() -> None:
+    """Run a PEV task with tools loaded from a FastMCP server."""
     # 1. Import MCP Adapter and PEV components
     from langchain_mcp_adapters.tools import load_mcp_tools
 
@@ -36,21 +34,21 @@ def main() -> None:
 
     # 2. Connect to your MCP Server
     # Replace the path with your actual fastmcp-production-template server
-    MCP_SERVER_PATH = "path/to/your/fastmcp-production-template/src/server/main.py"
+    mcp_server_path = "path/to/your/fastmcp-production-template/src/server/main.py"
 
-    print(f"Connecting to MCP Server: {MCP_SERVER_PATH}...")
+    print(f"Connecting to MCP Server: {mcp_server_path}...")
 
     try:
         # This loads all tools defined in your FastMCP server as LangChain BaseTools
         mcp_tools = load_mcp_tools(
             "uv",
-            ["run", MCP_SERVER_PATH],
+            ["run", mcp_server_path],
         )
         print(f"Successfully loaded {len(mcp_tools)} tools from MCP server.")
-    except Exception as e:
-        print(f"\n[Note] MCP Server not found at path: {MCP_SERVER_PATH}")
+    except Exception:  # noqa: BLE001
+        print(f"\n[Note] MCP Server not found at path: {mcp_server_path}")
         print("This is expected if you haven't cloned the other repo locally yet.")
-        print("To run this for real, update the MCP_SERVER_PATH variable.")
+        print("To run this for real, update the mcp_server_path variable.")
         mcp_tools = []
 
     # 3. Configure the PEV Graph with MCP Tools
@@ -68,10 +66,12 @@ def main() -> None:
     task = "Use the MCP tools to query the production database for active user counts."
 
     print(f"\nTask: {task}")
-    print("PEV is now ready to Plan, Execute (via MCP), and Validate the results.")
+    print("Running PEV graph with MCP tools...")
 
-    # result = graph.invoke(initial_state(task))
-    # print(f"Final Status: {result['status']}")
+    result = graph.invoke(initial_state(task))
+    print(f"Final Status: {result['status']}")
+    for sr in result.get("step_results", []):
+        print(f"  [{sr['score']:.0%}] {sr['step'][:70]}  (attempts: {sr['attempts']})")
 
 
 if __name__ == "__main__":

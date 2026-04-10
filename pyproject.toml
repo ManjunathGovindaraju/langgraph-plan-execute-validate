@@ -8,14 +8,28 @@ license = { text = "MIT" }
 authors = [
     { name = "Manjunath Govindaraju", email = "manjunath.govindaraju@gmail.com" }
 ]
-keywords = ["langgraph", "langchain", "multi-agent", "plan-execute", "ai-agents", "llm"]
+keywords = ["langgraph", "langchain", "multi-agent", "plan-execute", "ai-agents", "llm", "mcp", "autonomous-agents"]
 classifiers = [
     "Development Status :: 4 - Beta",
     "Intended Audience :: Developers",
     "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python :: 3",
     "Programming Language :: Python :: 3.13",
     "Topic :: Scientific/Engineering :: Artificial Intelligence",
+    "Topic :: Software Development :: Libraries :: Python Modules",
+    "Typing :: Typed",
 ]
+
+[project.urls]
+Homepage = "https://github.com/ManjunathGovindaraju/langgraph-plan-execute-validate"
+Repository = "https://github.com/ManjunathGovindaraju/langgraph-plan-execute-validate"
+"Bug Tracker" = "https://github.com/ManjunathGovindaraju/langgraph-plan-execute-validate/issues"
+Changelog = "https://github.com/ManjunathGovindaraju/langgraph-plan-execute-validate/releases"
+
+[project.optional-dependencies]
+tracing = ["langsmith>=0.2.0"]
+
 dependencies = [
     "langchain-anthropic>=1.4.0",
     "langchain-core>=1.2.28",

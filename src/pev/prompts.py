@@ -42,6 +42,14 @@ simplify, split, or replace steps. Do not repeat a step that already failed
 without meaningfully changing the approach.
 """
 
+PLANNER_HUMAN_FEEDBACK_NOTICE = """\
+
+💬  Additional guidance from human reviewer:
+{human_feedback}
+
+Incorporate this guidance into the revised plan.
+"""
+
 # ── Executor ───────────────────────────────────────────────────────────────────
 
 EXECUTOR_SYSTEM = """\

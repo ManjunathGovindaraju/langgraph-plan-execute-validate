@@ -16,6 +16,7 @@ from __future__ import annotations
 from langchain_anthropic import ChatAnthropic
 from langchain_core.messages import HumanMessage, SystemMessage, ToolMessage
 from langchain_core.tools import BaseTool
+from langgraph.types import interrupt
 
 from pev.config import PEVConfig
 from pev.prompts import (
@@ -38,6 +39,24 @@ def make_executor_node(cfg: PEVConfig):
     def executor_node(state: PEVState) -> dict:  # type: ignore[type-arg]
         current_step = state["plan"][state["current_step_idx"]]
         retry_count = state.get("retry_count", 0)
+
+        # ── Human-in-the-loop: step approval ────────────────────────────────
+        if cfg.interrupt_before_step:
+            idx = state["current_step_idx"]
+            total = len(state["plan"])
+            human_input = interrupt({
+                "type": "step_approval",
+                "step": current_step,
+                "step_number": idx + 1,
+                "total_steps": total,
+                "message": (
+                    f"Step {idx + 1}/{total}: '{current_step}'\n"
+                    "Resume with None to approve, or a string to override the step."
+                ),
+            })
+            # Non-empty string → human overrode the step text
+            if isinstance(human_input, str) and human_input.strip():
+                current_step = human_input.strip()
 
         # ── Build context string ─────────────────────────────────────────────
         context = ""

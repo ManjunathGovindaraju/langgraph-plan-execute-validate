@@ -15,18 +15,24 @@ Example usage
     # Defaults — Claude haiku for planner/validator, sonnet for executor
     config = PEVConfig()
 
-    # Override everything
+    # With LangSmith tracing metadata
     config = PEVConfig(
-        executor_model="claude-opus-4-5-20251001",
-        pass_threshold=0.90,
-        max_retries=3,
-        max_replans=2,
+        run_name="research-agent",
+        run_tags=["production", "v1"],
+        run_metadata={"user_id": "u-123", "environment": "prod"},
     )
+    result = graph.invoke(state, config=config.run_config())
+
+    # With human-in-the-loop
+    from langgraph.checkpoint.memory import MemorySaver
+    config = PEVConfig(interrupt_before_replan=True)
+    graph = create_pev_graph(config, checkpointer=MemorySaver())
 """
 
 from __future__ import annotations
 
 from dataclasses import dataclass, field
+from typing import Any
 
 from langchain_core.tools import BaseTool
 
@@ -66,6 +72,38 @@ class PEVConfig:
     """LangChain tools available to the Executor node.
     The Planner and Validator nodes never receive tools."""
 
+    # ── LangSmith tracing ────────────────────────────────────────────────────
+    run_name: str | None = None
+    """Display name for this run in LangSmith.  Useful for grouping experiments."""
+
+    run_tags: list[str] = field(default_factory=list)
+    """Tags attached to every LangSmith trace for this run (e.g. ["prod", "v2"])."""
+
+    run_metadata: dict[str, Any] = field(default_factory=dict)
+    """Arbitrary key-value metadata attached to the LangSmith trace
+    (e.g. {"user_id": "u-123", "environment": "prod"})."""
+
+    # ── Human-in-the-loop ────────────────────────────────────────────────────
+    interrupt_before_replan: bool = False
+    """If True, pause execution before triggering a full replan and wait for
+    human input.  Requires a checkpointer passed to create_pev_graph().
+
+    Resume via:
+        graph.invoke(Command(resume="optional guidance"), config=thread_config)
+
+    The resume value (if a non-empty string) is injected into the replan prompt
+    as additional human guidance for the Planner."""
+
+    interrupt_before_step: bool = False
+    """If True, pause before each executor step and wait for human approval.
+    Requires a checkpointer passed to create_pev_graph().
+
+    Resume via:
+        graph.invoke(Command(resume=None), config=thread_config)        # approve as-is
+        graph.invoke(Command(resume="revised step text"), config=...)   # override step
+
+    If a non-empty string is returned, it replaces the planned step text."""
+
     # ── Validation ───────────────────────────────────────────────────────────
     def __post_init__(self) -> None:
         """Validate configuration parameters after initialisation."""
@@ -75,3 +113,28 @@ class PEVConfig:
             raise ValueError(f"max_retries must be >= 0, got {self.max_retries}")
         if self.max_replans < 0:
             raise ValueError(f"max_replans must be >= 0, got {self.max_replans}")
+
+    def run_config(self) -> dict[str, Any]:
+        """Return a RunnableConfig dict to pass to graph.invoke() or graph.ainvoke().
+
+        Populates LangSmith run_name, tags, and metadata when set.  Safe to call
+        even when LangSmith is not configured — unused keys are ignored.
+
+        Usage::
+
+            result = graph.invoke(state, config=cfg.run_config())
+
+        For human-in-the-loop runs, merge with your thread config::
+
+            thread = {"configurable": {"thread_id": "run-1"}}
+            config = {**cfg.run_config(), **thread}
+            result = graph.invoke(state, config=config)
+        """
+        config: dict[str, Any] = {}
+        if self.run_name:
+            config["run_name"] = self.run_name
+        if self.run_tags:
+            config["tags"] = list(self.run_tags)
+        if self.run_metadata:
+            config["metadata"] = dict(self.run_metadata)
+        return config

@@ -15,7 +15,7 @@ from langchain_core.messages import HumanMessage, SystemMessage
 from pydantic import BaseModel
 
 from pev.config import PEVConfig
-from pev.prompts import PLANNER_REPLAN_SUFFIX, PLANNER_SYSTEM
+from pev.prompts import PLANNER_HUMAN_FEEDBACK_NOTICE, PLANNER_REPLAN_SUFFIX, PLANNER_SYSTEM
 from pev.state import PEVState
 
 
@@ -50,6 +50,12 @@ def make_planner_node(cfg: PEVConfig):
                 feedback=state.get("validation_feedback", "No feedback provided."),
                 past_steps=past_steps,
             )
+
+            # Inject human guidance when provided via interrupt()/Command(resume=...)
+            human_feedback = state.get("human_feedback")
+            if human_feedback:
+                suffix += PLANNER_HUMAN_FEEDBACK_NOTICE.format(human_feedback=human_feedback)
+
             human_content = f"Task: {state['task']}\n{suffix}"
         else:
             human_content = f"Task: {state['task']}"
@@ -69,6 +75,7 @@ def make_planner_node(cfg: PEVConfig):
             "pending_result": "",
             "validation_score": 0.0,
             "validation_feedback": "",
+            "human_feedback": None,  # consumed — clear for next cycle
             "status": "executing",
             "error": None,
         }

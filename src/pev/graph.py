@@ -28,13 +28,25 @@ real next node.
 
 Simpler alternative used here: use a conditional edge that reads from
 a "_next" field written by a router node.
+
+Human-in-the-loop
+─────────────────
+When cfg.interrupt_before_replan is True, the router calls interrupt()
+before triggering a replan.  The graph pauses and the caller resumes via:
+
+    graph.invoke(Command(resume="optional guidance"), config=thread_config)
+
+When cfg.interrupt_before_step is True, the executor calls interrupt()
+before running each step.  Requires a checkpointer passed to create_pev_graph().
 """
 
 from __future__ import annotations
 
-from typing import Literal
+import warnings
+from typing import Any, Literal
 
 from langgraph.graph import END, START, StateGraph
+from langgraph.types import interrupt
 
 from pev.config import PEVConfig
 from pev.nodes.executor import make_executor_node
@@ -87,7 +99,27 @@ def _make_router(cfg: PEVConfig):
             }
 
         if replan_count < cfg.max_replans:
-            return {"status": "planning", "_next": "replan"}
+            # ── Human-in-the-loop: replan approval ──────────────────────────
+            human_feedback: str | None = None
+            if cfg.interrupt_before_replan:
+                human_input: Any = interrupt({
+                    "type": "replan_approval",
+                    "failed_step": plan[idx] if idx < len(plan) else "",
+                    "score": score,
+                    "validator_feedback": state.get("validation_feedback", ""),
+                    "message": (
+                        f"Step '{plan[idx]}' failed (score: {score:.0%}). "
+                        "Resume to approve replanning, or provide guidance as a string."
+                    ),
+                })
+                if isinstance(human_input, str) and human_input.strip():
+                    human_feedback = human_input.strip()
+
+            return {
+                "status": "planning",
+                "_next": "replan",
+                "human_feedback": human_feedback,
+            }
 
         # All recovery options exhausted
         return {
@@ -122,42 +154,61 @@ def _dispatch(state: PEVState) -> str:
 # ── Graph construction ─────────────────────────────────────────────────────────
 
 
-def create_pev_graph(cfg: PEVConfig | None = None) -> StateGraph:
+def create_pev_graph(cfg: PEVConfig | None = None, checkpointer: Any = None) -> Any:
     """Build and compile the Plan → Execute → Validate graph.
 
     Parameters
     ----------
     cfg:
         Runtime configuration.  Defaults to PEVConfig() if not provided.
+    checkpointer:
+        A LangGraph checkpointer (e.g. ``MemorySaver()``) required when
+        ``cfg.interrupt_before_replan`` or ``cfg.interrupt_before_step`` is
+        True.  For non-HITL runs, omit this parameter.
 
     Returns:
     -------
     A compiled LangGraph ``StateGraph`` ready to ``.invoke()`` or
     ``.ainvoke()``.
 
-    Usage
-    -----
+    Basic usage::
+
         from pev import create_pev_graph, PEVConfig
 
         graph = create_pev_graph(PEVConfig(pass_threshold=0.85))
+        result = graph.invoke(initial_state("Research the top 3 vector databases"))
 
-        result = graph.invoke({
-            "task": "Research and summarise the top 3 vector databases",
-            "plan": [],
-            "current_step_idx": 0,
-            "pending_result": "",
-            "step_results": [],
-            "validation_score": 0.0,
-            "validation_feedback": "",
-            "retry_count": 0,
-            "replan_count": 0,
-            "status": "planning",
-            "error": None,
-            "_next": "",
-        })
+    With LangSmith tracing::
+
+        cfg = PEVConfig(run_name="research-agent", run_tags=["prod"])
+        graph = create_pev_graph(cfg)
+        result = graph.invoke(state, config=cfg.run_config())
+
+    With human-in-the-loop::
+
+        from langgraph.checkpoint.memory import MemorySaver
+        from langgraph.types import Command
+
+        cfg = PEVConfig(interrupt_before_replan=True)
+        graph = create_pev_graph(cfg, checkpointer=MemorySaver())
+
+        thread = {"configurable": {"thread_id": "run-1"}}
+        result = graph.invoke(initial_state("..."), config=thread)
+        # If interrupted:
+        result = graph.invoke(Command(resume="try a different approach"), config=thread)
     """
     if cfg is None:
         cfg = PEVConfig()
+
+    needs_checkpointer = cfg.interrupt_before_replan or cfg.interrupt_before_step
+    if needs_checkpointer and checkpointer is None:
+        warnings.warn(
+            "interrupt_before_replan or interrupt_before_step is enabled but no "
+            "checkpointer was provided. Human-in-the-loop requires a checkpointer. "
+            "Pass checkpointer=MemorySaver() to create_pev_graph().",
+            UserWarning,
+            stacklevel=2,
+        )
 
     builder = StateGraph(PEVState)
 
@@ -176,7 +227,7 @@ def create_pev_graph(cfg: PEVConfig | None = None) -> StateGraph:
     # The router node writes "_next"; _dispatch reads it to choose the branch
     builder.add_conditional_edges("router", _dispatch)
 
-    return builder.compile()
+    return builder.compile(checkpointer=checkpointer)
 
 
 # ── Convenience: build initial state ──────────────────────────────────────────
@@ -187,8 +238,8 @@ def initial_state(task: str) -> PEVState:
 
     Saves callers from spelling out every key manually.
 
-    Example:
-    -------
+    Example::
+
         state = initial_state("Summarise the latest LangGraph release notes")
         result = graph.invoke(state)
     """
@@ -202,6 +253,7 @@ def initial_state(task: str) -> PEVState:
         validation_feedback="",
         retry_count=0,
         replan_count=0,
+        human_feedback=None,
         status="planning",
         error=None,
         _next="",  # type: ignore[typeddict-unknown-key]

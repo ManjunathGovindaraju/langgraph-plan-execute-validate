@@ -95,6 +95,12 @@ class PEVState(TypedDict):
     error: str | None
     """Last error message, if any.  None during normal operation."""
 
+    # ── Human-in-the-loop ────────────────────────────────────────────────────
+    human_feedback: str | None
+    """Optional guidance provided by a human via Command(resume="...") after an
+    interrupt.  Written by the router (before replan) or executor (before step).
+    The planner injects it into the replan prompt then clears it to None."""
+
     # ── Internal routing ─────────────────────────────────────────────────────
     _next: str
     """
