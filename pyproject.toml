@@ -45,11 +45,26 @@ line-length = 100
 target-version = "py313"
 
 [tool.ruff.lint]
-select = ["E", "F", "I", "UP", "B", "SIM"]
-ignore = ["E501"]
+# E: pycodestyle errors
+# F: Pyflakes
+# I: isort
+# UP: pyupgrade
+# B: flake8-bugbear
+# SIM: flake8-simplify
+# N: pep8-naming
+# D: pydocstyle
+# S: flake8-security
+# PTH: flake8-use-pathlib
+# ARG: flake8-unused-arguments
+# PERF: Perflint
+select = ["E", "F", "I", "UP", "B", "SIM", "N", "D", "S", "PTH", "ARG", "PERF"]
+ignore = ["E501", "D100", "D104"] # Ignore missing docstrings in modules/packages
 
 [tool.ruff.lint.isort]
 known-first-party = ["pev"]
+
+[tool.ruff.lint.pydocstyle]
+convention = "google"
 
 # ── Mypy ──────────────────────────────────────────────────────────────────────
 [tool.mypy]
