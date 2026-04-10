@@ -60,11 +60,14 @@ def make_validator_node(cfg: PEVConfig):
 
         output: ValidationOutput = llm.invoke(messages)
 
+        # Clamp in the node itself — Pydantic validator is bypassed by mocks
+        score = max(0.0, min(1.0, output.score))
+
         # Build a complete StepResult and append it to the audit trail
         step_result: StepResult = {
             "step": current_step,
             "result": pending,
-            "score": output.score,
+            "score": score,
             "feedback": output.feedback,
             "attempts": state.get("retry_count", 0) + 1,
         }
@@ -72,7 +75,7 @@ def make_validator_node(cfg: PEVConfig):
         return {
             "step_results": [step_result],  # operator.add appends this
             "pending_result": "",           # consumed — clear it
-            "validation_score": output.score,
+            "validation_score": score,
             "validation_feedback": output.feedback,
             "status": "validating",         # router decides next transition
         }
