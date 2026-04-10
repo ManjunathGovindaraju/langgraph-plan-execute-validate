@@ -819,8 +819,6 @@ wheels = [
 name = "pev-langgraph"
 version = "0.1.0"
 source = { editable = "." }
-
-[package.optional-dependencies]
 dependencies = [
     { name = "langchain-anthropic" },
     { name = "langchain-core" },
@@ -828,6 +826,8 @@ dependencies = [
     { name = "langgraph" },
     { name = "python-dotenv" },
 ]
+
+[package.optional-dependencies]
 tracing = [
     { name = "langsmith" },
 ]
@@ -843,14 +843,14 @@ dev = [
 
 [package.metadata]
 requires-dist = [
-    { name = "langchain-anthropic", marker = "extra == 'dependencies'", specifier = ">=1.4.0" },
-    { name = "langchain-core", marker = "extra == 'dependencies'", specifier = ">=1.2.28" },
-    { name = "langchain-mcp-adapters", marker = "extra == 'dependencies'", specifier = ">=0.1.0" },
-    { name = "langgraph", marker = "extra == 'dependencies'", specifier = ">=1.1.6" },
+    { name = "langchain-anthropic", specifier = ">=1.4.0" },
+    { name = "langchain-core", specifier = ">=1.2.28" },
+    { name = "langchain-mcp-adapters", specifier = ">=0.1.0" },
+    { name = "langgraph", specifier = ">=1.1.6" },
     { name = "langsmith", marker = "extra == 'tracing'", specifier = ">=0.2.0" },
-    { name = "python-dotenv", marker = "extra == 'dependencies'", specifier = ">=1.2.2" },
+    { name = "python-dotenv", specifier = ">=1.2.2" },
 ]
-provides-extras = ["tracing", "dependencies"]
+provides-extras = ["tracing"]
 
 [package.metadata.requires-dev]
 dev = [
