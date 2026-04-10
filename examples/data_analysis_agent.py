@@ -57,7 +57,7 @@ def main() -> None:
         "3. Two actionable recommendations to reduce churn"
     )
 
-    print(f"\nTask:\n{task}\n{'='*60}\n")
+    print(f"\nTask:\n{task}\n{'=' * 60}\n")
 
     result = graph.invoke(initial_state(task))
 

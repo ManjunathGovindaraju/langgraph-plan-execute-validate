@@ -20,6 +20,7 @@ from pev.state import PEVState, StepResult
 
 # ── State builders ─────────────────────────────────────────────────────────────
 
+
 def make_state(**overrides) -> PEVState:
     """Return a fully-initialised PEVState with optional field overrides."""
     base: PEVState = {
@@ -55,6 +56,7 @@ def make_step_result(**overrides) -> StepResult:
 
 # ── Config fixtures ────────────────────────────────────────────────────────────
 
+
 @pytest.fixture
 def default_cfg() -> PEVConfig:
     return PEVConfig(pass_threshold=0.80, max_retries=2, max_replans=1)
@@ -79,6 +81,7 @@ def zero_replan_cfg() -> PEVConfig:
 
 
 # ── Mock LLM helpers ───────────────────────────────────────────────────────────
+
 
 def mock_llm_returning(content: str) -> MagicMock:
     """Return a MagicMock that behaves like a bound ChatAnthropic LLM.
@@ -105,6 +108,7 @@ def mock_llm_returning(content: str) -> MagicMock:
 
 # ── Planner mock ───────────────────────────────────────────────────────────────
 
+
 @pytest.fixture
 def mock_planner_llm():
     """Patches ChatAnthropic in the planner module to return a 3-step plan."""
@@ -126,6 +130,7 @@ def mock_planner_llm():
 
 # ── Executor mock ──────────────────────────────────────────────────────────────
 
+
 @pytest.fixture
 def mock_executor_llm():
     """Patches ChatAnthropic in the executor module to return a text result."""
@@ -141,8 +146,8 @@ def mock_executor_llm():
         yield llm
 
 
-
 # ── Validator mock ─────────────────────────────────────────────────────────────
+
 
 def make_validator_mock(score: float, feedback: str = "Looks good."):
     """Context manager that patches ChatAnthropic in the validator module.
@@ -173,6 +178,5 @@ def make_validator_mock(score: float, feedback: str = "Looks good."):
 
         def __exit__(self, *args):
             mock_ctx.__exit__(*args)
-
 
     return _Ctx()

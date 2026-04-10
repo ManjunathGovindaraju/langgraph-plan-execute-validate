@@ -16,6 +16,7 @@ from pev.graph import _dispatch
 
 # ── Config validation ──────────────────────────────────────────────────────────
 
+
 def test_config_rejects_threshold_above_1():
     with pytest.raises(ValueError, match="pass_threshold"):
         PEVConfig(pass_threshold=1.1)
@@ -45,6 +46,7 @@ def test_config_accepts_valid_values():
 
 # ── Graph compilation ──────────────────────────────────────────────────────────
 
+
 def test_graph_compiles_with_defaults():
     graph = create_pev_graph()
     assert graph is not None
@@ -64,6 +66,7 @@ def test_graph_has_expected_nodes():
 
 # ── initial_state ──────────────────────────────────────────────────────────────
 
+
 def test_initial_state_sets_task():
     state = initial_state("My task")
     assert state["task"] == "My task"
@@ -72,9 +75,17 @@ def test_initial_state_sets_task():
 def test_initial_state_has_all_required_keys():
     state = initial_state("test")
     required = {
-        "task", "plan", "current_step_idx", "pending_result",
-        "step_results", "validation_score", "validation_feedback",
-        "retry_count", "replan_count", "status", "error",
+        "task",
+        "plan",
+        "current_step_idx",
+        "pending_result",
+        "step_results",
+        "validation_score",
+        "validation_feedback",
+        "retry_count",
+        "replan_count",
+        "status",
+        "error",
     }
     assert required.issubset(set(state.keys()))
 
@@ -105,15 +116,20 @@ def test_initial_state_no_error():
 
 # ── Dispatch edge ──────────────────────────────────────────────────────────────
 
-@pytest.mark.parametrize("next_val,expected_dest", [
-    ("execute",  "executor"),
-    ("retry",    "executor"),
-    ("replan",   "planner"),
-    ("complete", "__end__"),
-    ("failed",   "__end__"),
-    ("unknown",  "__end__"),   # fallback
-])
+
+@pytest.mark.parametrize(
+    "next_val,expected_dest",
+    [
+        ("execute", "executor"),
+        ("retry", "executor"),
+        ("replan", "planner"),
+        ("complete", "__end__"),
+        ("failed", "__end__"),
+        ("unknown", "__end__"),  # fallback
+    ],
+)
 def test_dispatch_maps_correctly(next_val: str, expected_dest: str):
     from tests.conftest import make_state
+
     state = make_state(_next=next_val)  # type: ignore[call-arg]
     assert _dispatch(state) == expected_dest

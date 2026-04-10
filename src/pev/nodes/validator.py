@@ -72,10 +72,10 @@ def make_validator_node(cfg: PEVConfig):
 
         return {
             "step_results": [step_result],  # operator.add appends this
-            "pending_result": "",           # consumed — clear it
+            "pending_result": "",  # consumed — clear it
             "validation_score": score,
             "validation_feedback": output.feedback,
-            "status": "validating",         # router decides next transition
+            "status": "validating",  # router decides next transition
         }
 
     return validator_node

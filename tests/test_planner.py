@@ -41,11 +41,11 @@ def _patch_planner(steps: list[str]):
         def __exit__(self, *args):
             mock_ctx.__exit__(*args)
 
-
     return _Ctx()
 
 
 # ── Initial planning ───────────────────────────────────────────────────────────
+
 
 def test_planner_sets_plan_on_first_call(default_cfg: PEVConfig):
     steps = ["Research topic", "Write draft", "Review"]
@@ -104,6 +104,7 @@ def test_planner_clears_error_field(default_cfg: PEVConfig):
 
 
 # ── Replanning ─────────────────────────────────────────────────────────────────
+
 
 def test_replan_increments_replan_count(default_cfg: PEVConfig):
     # Non-empty plan → this is a replan

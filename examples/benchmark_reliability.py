@@ -25,6 +25,7 @@ load_dotenv()
 
 # ── Mock Tool with Deterministic Flakiness ────────────────────────────────────
 
+
 class SearchInput(BaseModel):
     query: str = Field(description="The search query")
 
@@ -58,6 +59,7 @@ class FlakySearchTool(BaseTool):
 
 # ── Benchmark Runner ──────────────────────────────────────────────────────────
 
+
 def main() -> None:
     # Check for API key
     if not os.getenv("ANTHROPIC_API_KEY"):
@@ -77,49 +79,49 @@ def main() -> None:
 
     graph = create_pev_graph(cfg)
 
-    task = (
-        "Find the exact star count and release year of the 'SuperDB' vector database."
-    )
+    task = "Find the exact star count and release year of the 'SuperDB' vector database."
 
-    print(f"\n{'='*70}")
+    print(f"\n{'=' * 70}")
     print("PEV BENCHMARK: RELIABILITY & CORRECTION")
-    print(f"{'='*70}")
+    print(f"{'=' * 70}")
     print(f"Task: {task}")
     print("Tool: FlakySearchTool (returns generic result on first call)")
     print(f"Pass Threshold: {cfg.pass_threshold:.2%}")
-    print(f"{'-'*70}\n")
+    print(f"{'-' * 70}\n")
 
     # 2. Execute
     print("Running PEV Graph...")
     result = graph.invoke(initial_state(task))
 
     # 3. Analyze results
-    print(f"\n{'='*70}")
+    print(f"\n{'=' * 70}")
     print("BENCHMARK RESULTS")
-    print(f"{'='*70}")
+    print(f"{'=' * 70}")
     print(f"Final Status: {result['status'].upper()}")
 
     # Find the step that was retried
     steps_with_retries = [sr for sr in result["step_results"] if sr["attempts"] > 1]
-    
+
     # Correction Rate calculation
     # In this specific benchmark, we expect 1 correction if the retry happened
     correction_count = len(steps_with_retries)
-    
+
     print(f"Total Steps in Plan: {len(result['plan'])}")
     print(f"Total Corrections  : {correction_count}")
-    
+
     if correction_count > 0:
         print("\n[CORRECTION LOG]")
         for sr in result["step_results"]:
-            status = "✅ PASSED" if sr["score"] >= cfg.pass_threshold else "❌ FAILED (Retry Triggered)"
+            status = (
+                "✅ PASSED" if sr["score"] >= cfg.pass_threshold else "❌ FAILED (Retry Triggered)"
+            )
             print(f"Attempt {sr['attempts']} | Score: {sr['score']:.2%}")
             print(f"  Feedback: {sr['feedback']}")
             print(f"  Status  : {status}")
             print(f"  Output  : {sr['result'][:100]}...")
             print()
 
-    print(f"{'-'*70}")
+    print(f"{'-' * 70}")
     print("ANALYSIS:")
     if correction_count > 0:
         print("The Validator successfully caught the low-quality generic result.")
@@ -128,7 +130,7 @@ def main() -> None:
         print("\nQUALITY UPLIFT: 100% (Generic -> Detailed)")
     else:
         print("No corrections were needed (or the validator was too lenient).")
-    print(f"{'='*70}\n")
+    print(f"{'=' * 70}\n")
 
 
 if __name__ == "__main__":

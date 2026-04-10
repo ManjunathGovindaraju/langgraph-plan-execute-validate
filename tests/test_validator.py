@@ -44,11 +44,11 @@ def _patch_validator(score: float, feedback: str = "Test feedback."):
         def __exit__(self, *args):
             mock_ctx.__exit__(*args)
 
-
     return _Ctx()
 
 
 # ── Score and feedback ─────────────────────────────────────────────────────────
+
 
 def test_validator_writes_score(default_cfg: PEVConfig):
     state = make_state(pending_result="some output")
@@ -90,6 +90,7 @@ def test_validator_clamps_score_below_0(default_cfg: PEVConfig):
 
 # ── StepResult audit trail ────────────────────────────────────────────────────
 
+
 def test_validator_appends_step_result(default_cfg: PEVConfig):
     state = make_state(pending_result="executor output here")
 
@@ -127,6 +128,7 @@ def test_validator_records_attempt_count(default_cfg: PEVConfig):
 
 
 # ── Handoff cleanup ────────────────────────────────────────────────────────────
+
 
 def test_validator_clears_pending_result(default_cfg: PEVConfig):
     state = make_state(pending_result="some pending content")

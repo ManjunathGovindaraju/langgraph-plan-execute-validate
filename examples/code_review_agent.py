@@ -20,7 +20,7 @@ from dotenv import load_dotenv
 load_dotenv()
 
 
-CODE_SNIPPET = '''
+CODE_SNIPPET = """
 async def process_batch(items: list[dict]) -> list[dict]:
     results = []
     for item in items:
@@ -31,7 +31,7 @@ async def process_batch(items: list[dict]) -> list[dict]:
         results.append(dict(row))
         await conn.close()
     return results
-'''
+"""
 
 
 def main() -> None:
@@ -53,7 +53,7 @@ def main() -> None:
         "and provide a corrected version."
     )
 
-    print(f"\nTask:\n{task[:200]}...\n{'='*60}\n")
+    print(f"\nTask:\n{task[:200]}...\n{'=' * 60}\n")
 
     result = graph.invoke(initial_state(task))
 

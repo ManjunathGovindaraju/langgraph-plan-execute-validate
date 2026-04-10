@@ -38,10 +38,13 @@ def make_planner_node(cfg: PEVConfig):
 
         # Build the human message
         if is_replan:
-            past_steps = "\n".join(
-                f"  • {r['step']} → score {r['score']:.0%}"
-                for r in state.get("step_results", [])
-            ) or "  (none)"
+            past_steps = (
+                "\n".join(
+                    f"  • {r['step']} → score {r['score']:.0%}"
+                    for r in state.get("step_results", [])
+                )
+                or "  (none)"
+            )
 
             suffix = PLANNER_REPLAN_SUFFIX.format(
                 feedback=state.get("validation_feedback", "No feedback provided."),

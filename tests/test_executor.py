@@ -45,6 +45,7 @@ def _patch_executor(response_content: str, tool_calls=None):
 
 # ── Basic execution ────────────────────────────────────────────────────────────
 
+
 def test_executor_writes_pending_result(default_cfg: PEVConfig):
     state = make_state()
 
@@ -81,6 +82,7 @@ def test_executor_uses_current_step(default_cfg: PEVConfig):
 
 
 # ── Context injection ──────────────────────────────────────────────────────────
+
 
 def test_executor_injects_passing_context(default_cfg: PEVConfig):
     """Passing step results should appear in the executor's prompt."""
@@ -134,6 +136,7 @@ def test_executor_injects_retry_feedback(default_cfg: PEVConfig):
 
 
 # ── Tool calls ─────────────────────────────────────────────────────────────────
+
 
 def test_executor_calls_registered_tool():
     """If the LLM returns a tool call, the tool should be invoked."""

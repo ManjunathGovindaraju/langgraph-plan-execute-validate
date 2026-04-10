@@ -110,16 +110,17 @@ def _dispatch(state: PEVState) -> str:
     """
     decision: str = state.get("_next", "failed")  # type: ignore[assignment]
     mapping = {
-        "execute":  "executor",
-        "retry":    "executor",
-        "replan":   "planner",
+        "execute": "executor",
+        "retry": "executor",
+        "replan": "planner",
         "complete": END,
-        "failed":   END,
+        "failed": END,
     }
     return mapping.get(decision, END)
 
 
 # ── Graph construction ─────────────────────────────────────────────────────────
+
 
 def create_pev_graph(cfg: PEVConfig | None = None) -> StateGraph:
     """Build and compile the Plan → Execute → Validate graph.
@@ -161,15 +162,15 @@ def create_pev_graph(cfg: PEVConfig | None = None) -> StateGraph:
     builder = StateGraph(PEVState)
 
     # ── Register nodes ─────────────────────────────────────────────────────
-    builder.add_node("planner",  make_planner_node(cfg))
+    builder.add_node("planner", make_planner_node(cfg))
     builder.add_node("executor", make_executor_node(cfg))
     builder.add_node("validator", make_validator_node(cfg))
-    builder.add_node("router",   _make_router(cfg))
+    builder.add_node("router", _make_router(cfg))
 
     # ── Edges ──────────────────────────────────────────────────────────────
-    builder.add_edge(START,       "planner")
-    builder.add_edge("planner",   "executor")
-    builder.add_edge("executor",  "validator")
+    builder.add_edge(START, "planner")
+    builder.add_edge("planner", "executor")
+    builder.add_edge("executor", "validator")
     builder.add_edge("validator", "router")
 
     # The router node writes "_next"; _dispatch reads it to choose the branch
@@ -179,6 +180,7 @@ def create_pev_graph(cfg: PEVConfig | None = None) -> StateGraph:
 
 
 # ── Convenience: build initial state ──────────────────────────────────────────
+
 
 def initial_state(task: str) -> PEVState:
     """Return a fully-initialised PEVState for *task*.

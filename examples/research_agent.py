@@ -46,9 +46,9 @@ def main() -> None:
         "one sentence on what makes it unique."
     )
 
-    print(f"\n{'='*60}")
+    print(f"\n{'=' * 60}")
     print(f"Task: {task}")
-    print(f"{'='*60}\n")
+    print(f"{'=' * 60}\n")
 
     result = graph.invoke(initial_state(task))
 

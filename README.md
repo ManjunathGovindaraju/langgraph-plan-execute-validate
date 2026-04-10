@@ -132,14 +132,14 @@ flowchart TD
     J["❌ failed → END"]
 
     A --> B
-    B -->|yes| C
-    C -->|yes| D
-    C -->|no|  E
-    B -->|no|  F
-    F -->|yes| G
-    F -->|no|  H
-    H -->|yes| I
-    H -->|no|  J
+    B -->|"yes"| C
+    C -->|"yes"| D
+    C -->|"no"|  E
+    B -->|"no"|  F
+    F -->|"yes"| G
+    F -->|"no"|  H
+    H -->|"yes"| I
+    H -->|"no"|  J
 ```
 
 ### Request Lifecycle

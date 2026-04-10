@@ -87,9 +87,7 @@ def make_executor_node(cfg: PEVConfig):
                     except Exception as exc:  # noqa: BLE001
                         tool_output = f"Error executing '{tool_name}': {exc}"
 
-                messages.append(
-                    ToolMessage(content=tool_output, tool_call_id=tool_id)
-                )
+                messages.append(ToolMessage(content=tool_output, tool_call_id=tool_id))
 
         # ── Extract final text result ────────────────────────────────────────
         final = messages[-1]

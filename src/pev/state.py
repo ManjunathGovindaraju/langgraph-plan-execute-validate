@@ -17,14 +17,15 @@ from typing_extensions import TypedDict
 
 # ── Per-step result ────────────────────────────────────────────────────────────
 
+
 class StepResult(TypedDict):
     """Outcome of a single plan step after execution and validation."""
 
-    step: str           # The step description from the plan
-    result: str         # Raw output from the executor
-    score: float        # Validator confidence score  0.0 – 1.0
-    feedback: str       # Validator's explanation of the score
-    attempts: int       # How many times this step was attempted
+    step: str  # The step description from the plan
+    result: str  # Raw output from the executor
+    score: float  # Validator confidence score  0.0 – 1.0
+    feedback: str  # Validator's explanation of the score
+    attempts: int  # How many times this step was attempted
 
 
 # ── Status literals ────────────────────────────────────────────────────────────
@@ -33,6 +34,7 @@ Status = Literal["planning", "executing", "validating", "complete", "failed"]
 
 
 # ── Graph state ────────────────────────────────────────────────────────────────
+
 
 class PEVState(TypedDict):
     """Shared state that flows through every node in the PEV graph.
