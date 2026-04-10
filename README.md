@@ -1,6 +1,6 @@
-# langgraph-plan-execute-validate
+# langgraph-plan-execute-validate (PEV)
 
-> The missing third node in LangGraph plan-execute workflows — a structured Validator with confidence scoring, per-step retry, and automatic replanning.
+> The missing third node in LangGraph **Plan → Execute → Validate (PEV)** workflows — a structured Validator with confidence scoring, per-step retry, and automatic replanning.
 
 [![CI](https://github.com/ManjunathGovindaraju/langgraph-plan-execute-validate/actions/workflows/ci.yml/badge.svg)](https://github.com/ManjunathGovindaraju/langgraph-plan-execute-validate/actions/workflows/ci.yml)
 [![codecov](https://codecov.io/gh/ManjunathGovindaraju/langgraph-plan-execute-validate/branch/main/graph/badge.svg)](https://codecov.io/gh/ManjunathGovindaraju/langgraph-plan-execute-validate)
@@ -34,6 +34,21 @@ This template packages that pattern. It is extracted from real production agent 
 | Multi-model cost optimisation | ✗ | **✓  haiku/sonnet split** |
 | Full audit trail (every attempt) | ✗ | **✓  operator.add accumulator** |
 | Structured outputs (no string parsing) | ✗ | **✓  Pydantic models** |
+
+---
+
+## Target Audience & Use Cases
+
+This project is built for **AI Architects and Senior Engineers** moving beyond demo-grade agents into reliable, production-ready autonomous systems.
+
+### 1. The Production Scaffold (Clone & Build)
+Use this as a foundation for new agents. Define your domain-specific tools in `PEVConfig`, tune the `prompts.py` for your use case, and deploy as a microservice or MCP server.
+
+### 2. Reference Architecture (Pattern Extraction)
+If you have an existing LangGraph project, use this as a reference implementation to add a **Validator + Router** quality gate to your current Plan-Execute flows.
+
+### 3. Quality & Cost Benchmarking
+Use the `benchmark_reliability.py` pattern to test how different `validator_model` choices (e.g., Haiku vs. Sonnet) affect your "Correction Rate" and total token spend.
 
 ---
 
@@ -177,6 +192,28 @@ sequenceDiagram
 
 ---
 
+## Full-Stack AI Architecture
+
+This platform is designed to work seamlessly with the [FastMCP Production Template](https://github.com/ManjunathGovindaraju/fastmcp-production-template).
+
+*   **The Brain (PEV):** This repository. It handles high-level reasoning, multi-step planning, and quality-controlled execution.
+*   **The Hands (MCP):** Standardized tools, resources, and prompts exposed via FastMCP.
+
+By separating **Orchestration (PEV)** from **Capabilities (MCP)**, you can update your business logic and data integrations without redeploying your core agent logic.
+
+```python
+from langchain_mcp_adapters.tools import load_mcp_tools
+from pev import create_pev_graph, PEVConfig
+
+# Load tools from your FastMCP production server
+tools = load_mcp_tools("uv", ["run", "path/to/server.py"])
+
+# Orchestrate them with PEV's quality gates
+graph = create_pev_graph(PEVConfig(tools=tools, pass_threshold=0.85))
+```
+
+---
+
 ## Configuration
 
 ```python
@@ -315,17 +352,15 @@ from pev.config import PEVConfig
 # change scoring criteria without touching node logic.
 ```
 
-**Custom tools** — any LangChain `BaseTool`:
+**Custom tools** — any LangChain `BaseTool` or **MCP Tools**:
 
 ```python
-from langchain_core.tools import tool
+from langchain_mcp_adapters.tools import load_mcp_tools
 
-@tool
-def query_database(sql: str) -> str:
-    """Execute a read-only SQL query."""
-    ...
+# Connect to an MCP server (e.g., your FastMCP production server)
+mcp_tools = load_mcp_tools("uv", ["run", "server.py"])
 
-cfg = PEVConfig(tools=[query_database])
+cfg = PEVConfig(tools=mcp_tools)
 ```
 
 **Async execution:**
