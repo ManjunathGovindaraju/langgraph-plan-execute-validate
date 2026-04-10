@@ -1,5 +1,4 @@
-"""
-Example: Data analysis agent (no external tools).
+"""Example: Data analysis agent (no external tools).
 
 Demonstrates the PEV graph with no tools — the executor uses only
 the LLM's reasoning to analyse a provided dataset description and

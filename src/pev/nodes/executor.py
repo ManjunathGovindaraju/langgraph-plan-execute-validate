@@ -1,5 +1,4 @@
-"""
-Executor node — runs a single plan step using available tools.
+"""Executor node — runs a single plan step using available tools.
 
 The executor implements a tool-call loop:
   1. Send step + context to the LLM (with tools bound)
@@ -32,7 +31,6 @@ MAX_TOOL_ROUNDS = 10  # hard cap on tool-call iterations per step
 
 def make_executor_node(cfg: PEVConfig):
     """Factory that returns an executor node closed over *cfg*."""
-
     tools_by_name: dict[str, BaseTool] = {t.name: t for t in cfg.tools}
     llm = ChatAnthropic(model=cfg.executor_model)
     llm_with_tools = llm.bind_tools(cfg.tools) if cfg.tools else llm  # type: ignore[arg-type]

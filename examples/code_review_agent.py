@@ -1,5 +1,4 @@
-"""
-Example: Code review agent with strict validation.
+"""Example: Code review agent with strict validation.
 
 Uses a high pass_threshold (0.90) to demonstrate the retry mechanism.
 The validator is strict about code review completeness — the executor

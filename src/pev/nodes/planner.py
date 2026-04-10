@@ -1,5 +1,4 @@
-"""
-Planner node — breaks the task into an ordered list of steps.
+"""Planner node — breaks the task into an ordered list of steps.
 
 On the first call it plans from scratch.  On subsequent calls (replanning)
 it receives the validator's failure feedback and the steps attempted so far,
@@ -27,8 +26,7 @@ class PlanOutput(BaseModel):
 
 
 def make_planner_node(cfg: PEVConfig):
-    """
-    Factory that returns a planner node closed over *cfg*.
+    """Factory that returns a planner node closed over *cfg*.
 
     Using a factory (rather than reading config from RunnableConfig) keeps
     the node signature simple and the config explicit at graph-build time.

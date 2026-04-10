@@ -1,5 +1,4 @@
-"""
-Graph-level integration tests (mock LLM — no API calls).
+"""Graph-level integration tests (mock LLM — no API calls).
 
 Tests cover:
 - Graph compiles with default and custom configs

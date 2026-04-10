@@ -1,5 +1,4 @@
-"""
-PEV graph — wires the Plan → Execute → Validate StateGraph.
+"""PEV graph — wires the Plan → Execute → Validate StateGraph.
 
 Graph topology
 ──────────────
@@ -49,9 +48,9 @@ RouteDecision = Literal["execute", "retry", "replan", "complete", "failed"]
 
 
 def _make_router(cfg: PEVConfig):
-    """
-    Returns a router *node* that writes "_next" into state and also
-    performs the step-advance / retry-reset bookkeeping.
+    """Returns a router *node* that writes "_next" into state and also.
+
+    Performs the step-advance / retry-reset bookkeeping.
 
     Why a node and not a conditional edge function?
     Conditional edge functions are read-only — they cannot update state.
@@ -105,8 +104,8 @@ def _make_router(cfg: PEVConfig):
 
 
 def _dispatch(state: PEVState) -> str:
-    """
-    Conditional edge that reads state["_next"] written by the router node.
+    """Conditional edge that reads state["_next"] written by the router node.
+
     Maps the decision string to an actual node name.
     """
     decision: str = state.get("_next", "failed")  # type: ignore[assignment]
@@ -123,15 +122,14 @@ def _dispatch(state: PEVState) -> str:
 # ── Graph construction ─────────────────────────────────────────────────────────
 
 def create_pev_graph(cfg: PEVConfig | None = None) -> StateGraph:
-    """
-    Build and compile the Plan → Execute → Validate graph.
+    """Build and compile the Plan → Execute → Validate graph.
 
     Parameters
     ----------
     cfg:
         Runtime configuration.  Defaults to PEVConfig() if not provided.
 
-    Returns
+    Returns:
     -------
     A compiled LangGraph ``StateGraph`` ready to ``.invoke()`` or
     ``.ainvoke()``.
@@ -183,12 +181,11 @@ def create_pev_graph(cfg: PEVConfig | None = None) -> StateGraph:
 # ── Convenience: build initial state ──────────────────────────────────────────
 
 def initial_state(task: str) -> PEVState:
-    """
-    Return a fully-initialised PEVState for *task*.
+    """Return a fully-initialised PEVState for *task*.
 
     Saves callers from spelling out every key manually.
 
-    Example
+    Example:
     -------
         state = initial_state("Summarise the latest LangGraph release notes")
         result = graph.invoke(state)

@@ -58,13 +58,22 @@ target-version = "py313"
 # ARG: flake8-unused-arguments
 # PERF: Perflint
 select = ["E", "F", "I", "UP", "B", "SIM", "N", "D", "S", "PTH", "ARG", "PERF"]
-ignore = ["E501", "D100", "D104"] # Ignore missing docstrings in modules/packages
+ignore = [
+    "E501", # Line too long (handled by formatter)
+    "D100", # Missing docstring in public module
+    "D104", # Missing docstring in public package
+    "D107", # Missing docstring in __init__
+]
 
 [tool.ruff.lint.isort]
 known-first-party = ["pev"]
 
 [tool.ruff.lint.pydocstyle]
 convention = "google"
+
+[tool.ruff.lint.per-file-ignores]
+"tests/*" = ["S101", "D101", "D102", "D103"] # Allow asserts and skip docstrings in tests
+"examples/*" = ["D101", "D102", "D103", "S101"]
 
 # ── Mypy ──────────────────────────────────────────────────────────────────────
 [tool.mypy]

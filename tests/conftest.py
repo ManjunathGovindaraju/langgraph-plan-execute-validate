@@ -1,5 +1,4 @@
-"""
-Shared fixtures for the PEV test suite.
+"""Shared fixtures for the PEV test suite.
 
 All unit tests use mock LLMs — zero API calls, zero cost, fast (~1s).
 Integration tests (marked `slow`) use real APIs and are excluded from CI.
@@ -82,8 +81,7 @@ def zero_replan_cfg() -> PEVConfig:
 # ── Mock LLM helpers ───────────────────────────────────────────────────────────
 
 def mock_llm_returning(content: str) -> MagicMock:
-    """
-    Return a MagicMock that behaves like a bound ChatAnthropic LLM.
+    """Return a MagicMock that behaves like a bound ChatAnthropic LLM.
 
     Calling .invoke() returns an AIMessage-like object whose .content
     equals *content*.  Calling .with_structured_output() returns a mock
@@ -117,12 +115,12 @@ def mock_planner_llm():
 
     plan_output = _PlanOutput(steps=["Step A", "Step B", "Step C"])
 
-    with patch("pev.nodes.planner.ChatAnthropic") as MockCls:
+    with patch("pev.nodes.planner.ChatAnthropic") as mock_cls:
         llm = MagicMock()
         structured = MagicMock()
         structured.invoke.return_value = plan_output
         llm.with_structured_output.return_value = structured
-        MockCls.return_value = llm
+        mock_cls.return_value = llm
         yield structured
 
 
@@ -131,7 +129,7 @@ def mock_planner_llm():
 @pytest.fixture
 def mock_executor_llm():
     """Patches ChatAnthropic in the executor module to return a text result."""
-    with patch("pev.nodes.executor.ChatAnthropic") as MockCls:
+    with patch("pev.nodes.executor.ChatAnthropic") as mock_cls:
         response = MagicMock()
         response.content = "Executor output: task completed successfully."
         response.tool_calls = []
@@ -139,15 +137,15 @@ def mock_executor_llm():
         llm = MagicMock()
         llm.invoke.return_value = response
         llm.bind_tools.return_value = llm
-        MockCls.return_value = llm
+        mock_cls.return_value = llm
         yield llm
+
 
 
 # ── Validator mock ─────────────────────────────────────────────────────────────
 
 def make_validator_mock(score: float, feedback: str = "Looks good."):
-    """
-    Context manager that patches ChatAnthropic in the validator module.
+    """Context manager that patches ChatAnthropic in the validator module.
 
     Usage:
         with make_validator_mock(score=0.9) as mock:
@@ -164,16 +162,17 @@ def make_validator_mock(score: float, feedback: str = "Looks good."):
     mock_ctx = patch("pev.nodes.validator.ChatAnthropic")
 
     class _Ctx:
-        def __enter__(self_inner):
-            MockCls = mock_ctx.__enter__()
+        def __enter__(self):
+            mock_cls = mock_ctx.__enter__()
             llm = MagicMock()
             structured = MagicMock()
             structured.invoke.return_value = output
             llm.with_structured_output.return_value = structured
-            MockCls.return_value = llm
+            mock_cls.return_value = llm
             return structured
 
-        def __exit__(self_inner, *args):
+        def __exit__(self, *args):
             mock_ctx.__exit__(*args)
+
 
     return _Ctx()

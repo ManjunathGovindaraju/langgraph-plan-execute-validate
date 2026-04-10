@@ -1,5 +1,4 @@
-"""
-pev-langgraph — Plan → Execute → Validate for LangGraph.
+"""pev-langgraph — Plan → Execute → Validate for LangGraph.
 
 Public API
 ----------

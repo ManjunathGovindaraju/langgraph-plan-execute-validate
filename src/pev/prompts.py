@@ -1,5 +1,4 @@
-"""
-All prompt templates for the PEV graph — one file, easy to tune.
+"""All prompt templates for the PEV graph — one file, easy to tune.
 
 Keeping prompts here (not scattered across node files) means you can
 A/B test prompt variants without touching business logic.

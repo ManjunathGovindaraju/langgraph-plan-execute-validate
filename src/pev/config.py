@@ -1,5 +1,4 @@
-"""
-PEVConfig — runtime configuration for the Plan → Execute → Validate graph.
+"""PEVConfig — runtime configuration for the Plan → Execute → Validate graph.
 
 Design rationale
 ----------------
@@ -34,6 +33,8 @@ from langchain_core.tools import BaseTool
 
 @dataclass
 class PEVConfig:
+    """Configuration for the PEV graph models, thresholds, and limits."""
+
     # ── Model routing ────────────────────────────────────────────────────────
     planner_model: str = "claude-haiku-4-5-20251001"
     """Model used by the Planner node.
@@ -67,6 +68,7 @@ class PEVConfig:
 
     # ── Validation ───────────────────────────────────────────────────────────
     def __post_init__(self) -> None:
+        """Validate configuration parameters after initialisation."""
         if not (0.0 < self.pass_threshold <= 1.0):
             raise ValueError(f"pass_threshold must be in (0.0, 1.0], got {self.pass_threshold}")
         if self.max_retries < 0:

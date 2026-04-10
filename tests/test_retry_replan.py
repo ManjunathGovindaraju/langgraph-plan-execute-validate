@@ -1,5 +1,4 @@
-"""
-Unit tests for router node routing logic.
+"""Unit tests for router node routing logic.
 
 This is the most important test file — the router is the brain of the
 retry/replan system.  Tests cover every branch of the decision tree:

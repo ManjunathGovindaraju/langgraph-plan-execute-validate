@@ -1,5 +1,4 @@
-"""
-PEV state schema.
+"""PEV state schema.
 
 The entire graph operates on a single PEVState dict that flows through
 every node.  Each node receives the full state and returns a partial
@@ -36,8 +35,7 @@ Status = Literal["planning", "executing", "validating", "complete", "failed"]
 # ── Graph state ────────────────────────────────────────────────────────────────
 
 class PEVState(TypedDict):
-    """
-    Shared state that flows through every node in the PEV graph.
+    """Shared state that flows through every node in the PEV graph.
 
     Fields updated by each node:
 

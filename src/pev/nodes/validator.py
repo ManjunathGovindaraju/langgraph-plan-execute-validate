@@ -1,5 +1,4 @@
-"""
-Validator node — scores the executor's output for the current step.
+"""Validator node — scores the executor's output for the current step.
 
 Reads state["pending_result"], sends it to the validator LLM with the
 step description and overall task for context, and receives a structured
@@ -40,7 +39,6 @@ class ValidationOutput(BaseModel):
 
 def make_validator_node(cfg: PEVConfig):
     """Factory that returns a validator node closed over *cfg*."""
-
     llm = ChatAnthropic(model=cfg.validator_model).with_structured_output(ValidationOutput)  # type: ignore[arg-type]
 
     def validator_node(state: PEVState) -> dict:  # type: ignore[type-arg]

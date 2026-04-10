@@ -1,5 +1,4 @@
-"""
-Benchmark: PEV Reliability & Correction Rate.
+"""Benchmark: PEV Reliability & Correction Rate.
 
 This script demonstrates the "Correction Rate" of the PEV graph — how many
 times the Validator catches a low-quality execution and forces a retry that
@@ -16,7 +15,6 @@ Run
 from __future__ import annotations
 
 import os
-from typing import Type
 
 from dotenv import load_dotenv
 from langchain_core.tools import BaseTool
@@ -34,7 +32,7 @@ class SearchInput(BaseModel):
 class FlakySearchTool(BaseTool):
     name: str = "search"
     description: str = "Search the web for information."
-    args_schema: Type[BaseModel] = SearchInput
+    args_schema: type[BaseModel] = SearchInput
 
     # Internal state to track calls per query to simulate improvement on retry
     _call_counts: dict[str, int] = {}
@@ -84,10 +82,10 @@ def main() -> None:
     )
 
     print(f"\n{'='*70}")
-    print(f"PEV BENCHMARK: RELIABILITY & CORRECTION")
+    print("PEV BENCHMARK: RELIABILITY & CORRECTION")
     print(f"{'='*70}")
     print(f"Task: {task}")
-    print(f"Tool: FlakySearchTool (returns generic result on first call)")
+    print("Tool: FlakySearchTool (returns generic result on first call)")
     print(f"Pass Threshold: {cfg.pass_threshold:.2%}")
     print(f"{'-'*70}\n")
 
@@ -97,7 +95,7 @@ def main() -> None:
 
     # 3. Analyze results
     print(f"\n{'='*70}")
-    print(f"BENCHMARK RESULTS")
+    print("BENCHMARK RESULTS")
     print(f"{'='*70}")
     print(f"Final Status: {result['status'].upper()}")
 

@@ -1,5 +1,4 @@
-"""
-Example: Research agent using Plan → Execute → Validate.
+"""Example: Research agent using Plan → Execute → Validate.
 
 This example uses the Tavily search tool to research a topic,
 validate each step's quality, and retry automatically if the
@@ -17,8 +16,6 @@ Run
 """
 
 from __future__ import annotations
-
-import os
 
 from dotenv import load_dotenv
 

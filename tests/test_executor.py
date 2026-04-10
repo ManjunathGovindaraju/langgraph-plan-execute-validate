@@ -1,5 +1,4 @@
-"""
-Unit tests for the executor node.
+"""Unit tests for the executor node.
 
 Tests cover:
 - Result written to pending_result
@@ -24,8 +23,8 @@ def _patch_executor(response_content: str, tool_calls=None):
     mock_ctx = patch("pev.nodes.executor.ChatAnthropic")
 
     class _Ctx:
-        def __enter__(self_inner):
-            MockCls = mock_ctx.__enter__()
+        def __enter__(self):
+            mock_cls = mock_ctx.__enter__()
             response = MagicMock()
             response.content = response_content
             response.tool_calls = tool_calls or []
@@ -33,12 +32,12 @@ def _patch_executor(response_content: str, tool_calls=None):
             llm = MagicMock()
             llm.invoke.return_value = response
             llm.bind_tools.return_value = llm
-            MockCls.return_value = llm
-            self_inner.llm = llm
-            self_inner.response = response
-            return self_inner
+            mock_cls.return_value = llm
+            self.llm = llm
+            self.response = response
+            return self
 
-        def __exit__(self_inner, *args):
+        def __exit__(self, *args):
             mock_ctx.__exit__(*args)
 
     return _Ctx()
@@ -136,7 +135,7 @@ def test_executor_injects_retry_feedback(default_cfg: PEVConfig):
 
 # ── Tool calls ─────────────────────────────────────────────────────────────────
 
-def test_executor_calls_registered_tool(default_cfg: PEVConfig):
+def test_executor_calls_registered_tool():
     """If the LLM returns a tool call, the tool should be invoked."""
     tool = MagicMock()
     tool.name = "search"
@@ -145,7 +144,7 @@ def test_executor_calls_registered_tool(default_cfg: PEVConfig):
 
     tool_call = {"name": "search", "args": {"query": "python"}, "id": "tc_1"}
 
-    with patch("pev.nodes.executor.ChatAnthropic") as MockCls:
+    with patch("pev.nodes.executor.ChatAnthropic") as mock_cls:
         # First response has tool call; second response is final text
         first_response = MagicMock()
         first_response.content = ""
@@ -158,7 +157,7 @@ def test_executor_calls_registered_tool(default_cfg: PEVConfig):
         llm = MagicMock()
         llm.invoke.side_effect = [first_response, final_response]
         llm.bind_tools.return_value = llm
-        MockCls.return_value = llm
+        mock_cls.return_value = llm
 
         result = make_executor_node(cfg)(make_state())
 
@@ -170,7 +169,7 @@ def test_executor_handles_unknown_tool_gracefully(default_cfg: PEVConfig):
     """An unregistered tool name should produce an error string, not an exception."""
     tool_call = {"name": "nonexistent_tool", "args": {}, "id": "tc_2"}
 
-    with patch("pev.nodes.executor.ChatAnthropic") as MockCls:
+    with patch("pev.nodes.executor.ChatAnthropic") as mock_cls:
         first = MagicMock()
         first.content = ""
         first.tool_calls = [tool_call]
@@ -182,7 +181,7 @@ def test_executor_handles_unknown_tool_gracefully(default_cfg: PEVConfig):
         llm = MagicMock()
         llm.invoke.side_effect = [first, final]
         llm.bind_tools.return_value = llm
-        MockCls.return_value = llm
+        mock_cls.return_value = llm
 
         # Should not raise
         result = make_executor_node(default_cfg)(make_state())

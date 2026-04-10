@@ -1,5 +1,4 @@
-"""
-Unit tests for the validator node.
+"""Unit tests for the validator node.
 
 Tests cover:
 - Score and feedback written to state
@@ -32,17 +31,19 @@ def _patch_validator(score: float, feedback: str = "Test feedback."):
     mock_ctx = patch("pev.nodes.validator.ChatAnthropic")
 
     class _Ctx:
-        def __enter__(self_inner):
-            MockCls = mock_ctx.__enter__()
+        def __enter__(self):
+            mock_cls = mock_ctx.__enter__()
             llm = MagicMock()
             structured = MagicMock()
             structured.invoke.return_value = output
             llm.with_structured_output.return_value = structured
-            MockCls.return_value = llm
+            mock_cls.value = llm  # Mock return value behavior
+            mock_cls.return_value = llm
             return structured
 
-        def __exit__(self_inner, *args):
+        def __exit__(self, *args):
             mock_ctx.__exit__(*args)
+
 
     return _Ctx()
 
@@ -116,7 +117,7 @@ def test_validator_records_step_description(default_cfg: PEVConfig):
 
 
 def test_validator_records_attempt_count(default_cfg: PEVConfig):
-    """attempts = retry_count + 1."""
+    """Attempts = retry_count + 1."""
     state = make_state(pending_result="output", retry_count=2)
 
     with _patch_validator(score=0.8):
