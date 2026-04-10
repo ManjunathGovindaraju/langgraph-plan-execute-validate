@@ -94,3 +94,11 @@ class PEVState(TypedDict):
 
     error: str | None
     """Last error message, if any.  None during normal operation."""
+
+    # ── Internal routing ─────────────────────────────────────────────────────
+    _next: str
+    """
+    Written by the router node; read by the _dispatch conditional edge.
+    Values: "execute" | "retry" | "replan" | "complete" | "failed"
+    Not part of the public API — callers should initialise it to "".
+    """
